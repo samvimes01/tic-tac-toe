@@ -1,3 +1,8 @@
+# Tic-Tac-Toe
+
+1. [Working version on codesandbox](https://codesandbox.io/s/github/samvimes01/tic-tac-toe/tree/gh-pages)
+2. [Pull request](https://github.com/samvimes01/tic-tac-toe/pull/1)
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
