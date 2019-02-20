@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
-import ReactDOM from "react-dom";
 
-import Scoreboard from './Scoreboard';
-
-const VS_HUM = 123;
-const VS_PC = 101;
+const VS_HUM = 0;
+const VS_PC = 1;
 const MOVE_X = 'X';
 const MOVE_0 = '0';
 const winPositions = ["012", "036", "048", "147", "246", "258", "345", "678"];
@@ -17,22 +14,21 @@ class TicTacToe extends Component {
       isNewGame: true,
       isGameStarted: false,
       winner: null,
-      isPcPlay: false,
+      isPcPlay: null,
       gameMode: false,
       nextMove: MOVE_X,
-      player: MOVE_X,
+      humanPlayer: null,
+      pcPlayer: null,
       cells: Array(9).fill(null),
       currentTurn: 1,
     };
 
-    this.scoreboard = React.createRef();
-
-    this.gameMode = this.gameMode.bind(this);
+    this.gameSetup = this.gameSetup.bind(this);
     this.restart = this.restart.bind(this);
-    this.reset = this.reset.bind(this);
     this.handleMove = this.handleMove.bind(this);
     this.move = this.move.bind(this);
-
+    this.getScoreBoardMessage = this.getScoreBoardMessage.bind(this);
+    
     // todo - logic for pc move
     // this.moveFromPc = this.moveFromPc.bind(this);
     // this.findNextWin = this.findNextWin.bind(this);
@@ -41,55 +37,49 @@ class TicTacToe extends Component {
 
   }
 
-  gameMode(event) {
+  gameSetup(event) {
     if (event.target.dataset.versus === 'hum') {
-      this.scoreboard.current.setState({nextMove: this.state.nextMove});
-
       this.setState({
         gameMode: VS_HUM,
         isPcPlay: false,
         isGameStarted: true,
+        isNewGame: false,
       });
     } else if (event.target.dataset.versus === 'pc') {
-      this.scoreboard.current.setState({gameMode: VS_PC});
       this.setState({
         gameMode: VS_PC,
         isPcPlay: true,
-        isGameStarted: false, // true when impl
+        isNewGame: false,
       });      
     } else if (event.target.dataset.firstMove === 'pc') {
+      this.setState({
+        humanPlayer: MOVE_0,
+        pcPlayer: MOVE_X,
+        isGameStarted: false, // true when impl
+      });   
       // this.moveFromPc();
       alert('sorry - I need more time to implement PC move');
     } else if (event.target.dataset.firstMove === 'hum') {
+      this.setState({
+        humanPlayer: MOVE_X,
+        pcPlayer: MOVE_0,
+        isGameStarted: false, // true when impl
+      });  
       alert('sorry - I need more time to implement PC move');
-      // this.scoreboard.current.setState({nextMove: this.state.nextMove});
+      // this.moveFromPc();
     }
   }
 
   restart() {
-    this.reset();
-
-    this.scoreboard.current.setState({
-      newGame: true,
-      winner: null,
-      noWinner: null,
-    });
-
-    const field = ReactDOM.findDOMNode(this).querySelector('.field');
-    for (let cell of field.childNodes) {
-      cell.textContent = '';
-    }
-  }
-
-  reset() {
     this.setState({
       isNewGame: true,
       isGameStarted: false,
       winner: null,
-      isPcPlay: false,
+      isPcPlay: null,
       gameMode: false,
       nextMove: MOVE_X,
-      player: MOVE_X,
+      humanPlayer: null,
+      pcPlayer: null,
       cells: Array(9).fill(null),
       currentTurn: 1,
     });
@@ -104,13 +94,12 @@ class TicTacToe extends Component {
         this.state.cells[a] === this.state.cells[b] &&
         this.state.cells[b] === this.state.cells[c]
       ) {
-      this.scoreboard.current.setState({winner: this.state.cells[a]});
         return this.state.cells[a];
       }
     }
 
     if (this.state.currentTurn === 9) {
-      this.scoreboard.current.setState({noWinner: true});
+      return 'draw'
     }
 
     return null;
@@ -123,7 +112,7 @@ class TicTacToe extends Component {
       return;
     }
 
-    const index = cell.dataset.index;
+    const index = +cell.dataset.index;
 
     this.move(index);
   }
@@ -133,20 +122,63 @@ class TicTacToe extends Component {
       return;
     }
 
-    if (this.state.winner !== null) {
+    if (this.state.winner) {
       return;
     }
 
     const mark = this.state.currentTurn % 2 === 1 ? MOVE_X : MOVE_0;
     
-    this.state.cells[index] = mark;
+    this.state.cells[index] = mark; // если через setState - в scoreBoard не рендерится winner
     
-    this.setState(state => {
+    this.setState(prevState => {
       return {
-        currentTurn: state.currentTurn + 1,
+        currentTurn: prevState.currentTurn + 1,
         winner: this.getWinner(),
       };
     });
+  }
+
+  getScoreBoardMessage() {
+    const {
+      isNewGame, gameMode, winner, nextMove, isGameStarted
+    } = this.state;
+
+    if (isNewGame) {
+      return (
+      <span>
+        <span className="vs" data-versus="hum">VS Human</span>
+        <span className="vs" data-versus="pc">VS PC</span>
+      </span>
+      );
+    }
+
+    if (gameMode === VS_PC && !isGameStarted) {
+      return (
+      <span>
+        <span>First move: </span>
+        <span className="vs" data-first-move="pc">PC</span>
+        <span className="vs" data-first-move="hum">Human</span>
+      </span>
+      );
+    }
+    if (winner && winner !== 'draw') {
+      return (
+      <h3>The winner is: {winner}</h3>
+      );
+    }
+
+    if (winner === 'draw') {
+      return (
+      <h3>Nobody wins</h3>
+      );
+    }
+
+    if (nextMove) {
+      return (
+      <p>next move: <span>{nextMove}</span></p>
+      );
+    }
+    return null;
   }
 
   render() {
@@ -163,7 +195,9 @@ class TicTacToe extends Component {
         </header>
         <main className="Game-main">
 
-          <Scoreboard newGame={this.state.isNewGame} gameMode={this.gameMode} ref={this.scoreboard}/>
+          <div className="Scoreboard" onClick={this.gameSetup}>
+            {this.getScoreBoardMessage()}
+          </div>
 
           <div className="field" onClick={this.handleMove}>
             {cellArray}
