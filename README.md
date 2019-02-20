@@ -1,7 +1,7 @@
 # Tic-Tac-Toe
 
 1. [Working version](https://samvimes01.github.io/tic-tac-toe/)
-2. [Pull request](https://github.com/samvimes01/tic-tac-toe/pull/1)
+2. [Pull request](https://github.com/samvimes01/tic-tac-toe/pull/2)
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 

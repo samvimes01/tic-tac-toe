@@ -24,14 +24,14 @@ class App extends Component {
       );
     }
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
+      <div className="app">
+        <header className="app-header">
+          <img src={logo} className="app-logo" alt="logo" />
           <p>
             Tic Tac Toe game.
           </p>
           <button
-            className="App-start-game-button"
+            className="app-start-game-button"
             onClick={this.startGame}
           >
             Start Game

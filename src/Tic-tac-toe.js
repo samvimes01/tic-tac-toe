@@ -29,10 +29,9 @@ class TicTacToe extends Component {
     this.move = this.move.bind(this);
     this.getScoreBoardMessage = this.getScoreBoardMessage.bind(this);
     
-    // todo - logic for pc move
-    // this.moveFromPc = this.moveFromPc.bind(this);
-    // this.findNextWin = this.findNextWin.bind(this);
-    // this.getRandomInt = this.getRandomInt.bind(this);
+    this.moveFromPc = this.moveFromPc.bind(this);
+    this.findNextWin = this.findNextWin.bind(this);
+    this.getRandomInt = this.getRandomInt.bind(this);
 
 
   }
@@ -55,18 +54,17 @@ class TicTacToe extends Component {
       this.setState({
         humanPlayer: MOVE_0,
         pcPlayer: MOVE_X,
-        isGameStarted: false, // true when impl
+        isGameStarted: true, // true when impl
       });   
-      // this.moveFromPc();
-      alert('sorry - I need more time to implement PC move');
+      this.moveFromPc();
+      // alert('sorry - I need more time to implement PC move');
     } else if (event.target.dataset.firstMove === 'hum') {
       this.setState({
         humanPlayer: MOVE_X,
         pcPlayer: MOVE_0,
-        isGameStarted: false, // true when impl
+        isGameStarted: true, // true when impl
       });  
-      alert('sorry - I need more time to implement PC move');
-      // this.moveFromPc();
+      // alert('sorry - I need more time to implement PC move');
     }
   }
 
@@ -86,19 +84,21 @@ class TicTacToe extends Component {
   }
 
   getWinner() {
+    const { cells, currentTurn } = this.state;
+
     for (let position of winPositions) {
       const [a, b, c] = [...position];
 
       if (
-        this.state.cells[a] !== null &&
-        this.state.cells[a] === this.state.cells[b] &&
-        this.state.cells[b] === this.state.cells[c]
+        cells[a] !== null &&
+        cells[a] === cells[b] &&
+        cells[b] === cells[c]
       ) {
-        return this.state.cells[a];
+        return cells[a];
       }
     }
 
-    if (this.state.currentTurn === 9) {
+    if (currentTurn === 9) {
       return 'draw'
     }
 
@@ -106,34 +106,45 @@ class TicTacToe extends Component {
   }
 
   handleMove(event) {
+    const { isGameStarted, gameMode } = this.state;
+
+
     const cell = event.target.closest("[data-index]");
 
-    if (!cell || !this.state.isGameStarted) {
+    if (!cell || !isGameStarted) {
       return;
     }
 
     const index = +cell.dataset.index;
 
     this.move(index);
+
+    if (gameMode === VS_PC) {
+      setTimeout(this.moveFromPc, 200);
+    }
   }
 
   move(index) {
-    if (this.state.cells[index] !== null) {
+    const { cells, winner, currentTurn } = this.state;
+
+    if (cells[index] !== null) {
       return;
     }
 
-    if (this.state.winner) {
+    if (winner) {
       return;
     }
 
-    const mark = this.state.currentTurn % 2 === 1 ? MOVE_X : MOVE_0;
+    let mark = currentTurn % 2 === 1 ? MOVE_X : MOVE_0;
     
-    this.state.cells[index] = mark; // если через setState - в scoreBoard не рендерится winner
+    // если через setState - в scoreBoard не рендерится winner даже если 2 setState сделать отдельно дя winner
+    this.state.cells[index] = mark;
     
     this.setState(prevState => {
       return {
         currentTurn: prevState.currentTurn + 1,
         winner: this.getWinner(),
+        nextMove: mark === MOVE_0 ? MOVE_X : MOVE_0,
       };
     });
   }
@@ -181,21 +192,78 @@ class TicTacToe extends Component {
     return null;
   }
 
+  moveFromPc() {
+    const { humanPlayer, pcPlayer, cells } = this.state;
+    let index;
+    const humanWinMove = this.findNextWin(humanPlayer);
+    if (humanWinMove >= 0) {
+      index = humanWinMove;
+    } else {
+      const pcWinMove = this.findNextWin(pcPlayer);
+  
+      if (pcWinMove >= 0) {
+        index = pcWinMove;
+      } else {
+        const emptyCells = cells.map(
+          (el, i) => {
+            if (!el) {
+              return i
+            };
+            return null;
+          }
+        ).filter(el => el);
+  
+        // if (emptyCells.length === 0) {
+        //   this.scoreboard.innerHTML = '<h3>Nobody wins</h3>';
+        //   return;
+        // }
+        index = emptyCells[this.getRandomInt(0, emptyCells.length)];
+      }
+    }
+    // setTimeout(this.move(index), 2000);
+  
+    this.move(index);
+  }
+  
+  findNextWin(letterForCheck) {
+    const { cells } = this.state;
+
+    for (let position of winPositions) {
+      const [a, b, c] = [...position];
+
+      const cellValues = [ cells[a], cells[b], cells[c] ];
+      const potentialWinPosArr = cellValues.filter(val => val === letterForCheck);
+      const emptyPosition = cellValues.indexOf(null);
+
+      if (emptyPosition >= 0 && potentialWinPosArr.length === 2) {
+        return position[emptyPosition];
+      }
+    }
+
+    return -1;
+  }
+  
+  getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min;
+  }
+
   render() {
     const  cellArray = this.state.cells.map((cell, ind) => {
       return (<div key={ind} data-index={ind} className="cell">{cell || ''}</div>);
     });
 
     return (
-      <div className="Game">
-        <header className="Game-header">
+      <div className="game">
+        <header className="game-header">
           <p>
             Tic Tac Toe game.
           </p>
         </header>
-        <main className="Game-main">
+        <main className="game-main">
 
-          <div className="Scoreboard" onClick={this.gameSetup}>
+          <div className="scoreboard" onClick={this.gameSetup}>
             {this.getScoreBoardMessage()}
           </div>
 
