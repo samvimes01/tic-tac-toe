@@ -21,5 +21,6 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "homepage": "https://samvimes01.github.io/tic-tac-toe-react/build"
 }
