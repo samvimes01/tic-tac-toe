@@ -1,14 +1,22 @@
-.App {
+:root {
+  --elWidth: 325px;
+}
+
+.app {
   text-align: center;
 }
 
-.App-logo {
+.app-link {
+  color: #61dafb;
+}
+
+.app-logo {
   animation: App-logo-spin infinite 20s linear;
   height: 40vmin;
   pointer-events: none;
 }
 
-.App-header {
+.app-header, .game-header {
   background-color: #282c34;
   min-height: 100vh;
   display: flex;
@@ -19,8 +27,18 @@
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.game-header {
+  min-height: 10vh;
+}
+
+.game-main {
+  background-color: #ccf3fd;
+  min-height: 90vh;
+  min-width: 90vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 @keyframes App-logo-spin {
@@ -30,4 +48,74 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+
+.scoreboard, .restart {  
+  width: var(--elWidth);
+  height: 60px;
+  background: rgb(195, 228, 255);
+  color: #444;
+  padding: 10px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.scoreboard > h3 {
+  color: green;
+}
+
+.restart > span {
+  font-size: 1.5em;
+  position: relative;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.field {
+  width: var(--elWidth);
+  height: 320px;
+  background: rgb(195, 228, 255);
+  color: #444;
+  display: inline-grid;
+  grid-template-columns: 100px 100px 100px;
+  grid-template-rows: 100px 100px 100px;
+  grid-gap: 5px;
+  justify-content: center;
+
+}
+
+.cell {
+  background: rgb(91, 180, 253);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 4em;
+  text-transform: uppercase;
+  box-sizing: border-box;
+}
+
+.restart, .scoreboard > p, .cell > span {
+  text-transform: capitalize;
+}
+
+.cell:hover {
+  border: 1px solid black;
+}
+
+.restart > span:hover, .vs:hover {
+  font-weight: bold;
+}
+
+.vs {
+  margin: 5px;
+  padding: 5px;
+  width: 80px;
+  background:  rgb(91, 180, 253);
+  display: inline-block;
+}
+
+.vs:hover {
+  background:  rgb(70, 180, 253);
+  cursor: pointer;
 }
